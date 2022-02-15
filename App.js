@@ -1,12 +1,32 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
 import { theme } from "./colors";
 
 export default function App() {
   const [working, setWorking] = useState(true);
+  const [text, setText] = useState();
+  const [toDos, setToDos] = useState({});
   const travel = () => setWorking(false);
   const work = () => setWorking(true);
+  const onChangeText = (payload) => setText(payload);
+  const addToDo = () => {
+    if (text === "") {
+      return;
+    }
+    const newToDos = Object.assign({}, toDos, {
+      [Date.now()]: { text, work: working },
+    });
+    setToDos(newToDos);
+    setText("");
+  };
+  console.log(toDos);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -31,6 +51,14 @@ export default function App() {
           </Text>
         </TouchableOpacity>
       </View>
+      <TextInput
+        onSubmitEditing={addToDo}
+        onChangeText={onChangeText}
+        returnKeyType="done"
+        value={text}
+        placeholder={working ? "Add a To Do" : "Where do you want to go?"}
+        style={styles.input}
+      />
       <StatusBar style="auto" />
     </View>
   );
@@ -50,5 +78,13 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 38,
     fontWeight: "600",
+  },
+  input: {
+    backgroundColor: "white",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    marginTop: 20,
+    fontSize: 18,
   },
 });
