@@ -29,6 +29,7 @@ export default function App() {
   const travel = () => setListType(false);
   const work = () => setListType(true);
   const onChangeText = (payload) => setText(payload);
+
   const saveToDos = async (toSave) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
@@ -47,7 +48,7 @@ export default function App() {
     await AsyncStorage.setItem(LIST_TYPE, JSON.stringify(value));
   };
 
-  const getListType = async (value) => {
+  const getListType = async () => {
     const s = await AsyncStorage.getItem(LIST_TYPE);
     s ? setListType(JSON.parse(s)) : setListType(true);
   };
@@ -76,6 +77,13 @@ export default function App() {
         },
       },
     ]);
+  };
+
+  const completeToDo = (key) => {
+    toDos[key] = { ...toDos[key], isComplete: !toDos[key].isComplete };
+    const newToDos = { ...toDos, [key]: toDos[key] };
+    setToDos(newToDos);
+    saveToDos(newToDos);
   };
 
   return (
@@ -114,7 +122,21 @@ export default function App() {
         {Object.keys(toDos).map((key) =>
           toDos[key].working === working ? (
             <View style={styles.toDo} key={key}>
-              <Text style={styles.toDoText}>{toDos[key].text}</Text>
+              <TouchableOpacity onPress={() => completeToDo(key)}>
+                <Text>
+                  <Fontisto name="check" size={18} color={theme.grey} />
+                </Text>
+              </TouchableOpacity>
+              <Text
+                style={{
+                  ...styles.toDoText,
+                  textDecorationLine: toDos[key].isComplete
+                    ? "line-through"
+                    : "none",
+                }}
+              >
+                {toDos[key].text}
+              </Text>
               <TouchableOpacity onPress={() => deleteToDo(key)}>
                 <Text>
                   <Fontisto name="trash" size={18} color={theme.grey} />
