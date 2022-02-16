@@ -14,24 +14,44 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { theme } from "./colors";
 
 const STORAGE_KEY = "@toDos";
+const LIST_TYPE = "@listType";
 
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState();
   const [toDos, setToDos] = useState({});
+
   useEffect(() => {
+    getListType();
     loadToDos();
   }, []);
-  const travel = () => setWorking(false);
-  const work = () => setWorking(true);
+
+  const travel = () => setListType(false);
+  const work = () => setListType(true);
   const onChangeText = (payload) => setText(payload);
   const saveToDos = async (toSave) => {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   const loadToDos = async () => {
     const s = await AsyncStorage.getItem(STORAGE_KEY);
     setToDos(JSON.parse(s));
   };
+
+  const setListType = async (value) => {
+    setWorking(value);
+    await AsyncStorage.setItem(LIST_TYPE, JSON.stringify(value));
+  };
+
+  const getListType = async (value) => {
+    const s = await AsyncStorage.getItem(LIST_TYPE);
+    s ? setListType(JSON.parse(s)) : setListType(true);
+  };
+
   const addToDo = async () => {
     if (text === "") {
       return;
@@ -41,6 +61,7 @@ export default function App() {
     await saveToDos(newToDos);
     setText("");
   };
+
   const deleteToDo = async (key) => {
     Alert.alert("Delete To Do?", "Are you sure?", [
       { text: "Cancel" },
@@ -56,6 +77,7 @@ export default function App() {
       },
     ]);
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
